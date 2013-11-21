@@ -3,13 +3,14 @@
 <head>
   <title>Palabra</title>
   <%= stylesheet_link_tag    "application", media: "all", "data-turbolinks-track" => true %>
+  <link href='http://fonts.googleapis.com/css?family=Average+Sans' rel='stylesheet' type='text/css'>
   <%= javascript_include_tag "application", "data-turbolinks-track" => true %>
   <%= csrf_meta_tags %>
 </head>
 <body>
 
 <form class="query" method="GET" action="<%= search_url %>">
-  <input name="query" />
+  <input name="query" placeholder="Search me!" />
 </form>
 
 <%= yield %>
