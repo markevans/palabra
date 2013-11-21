@@ -1,9 +1,11 @@
 body {
 }
 .query {
-  width: 100%;
-  font-size: 48px;
-  text-align: center;
+  input {
+    width: 100%;
+    font-size: 48px;
+    text-align: center;
+  }
 }
 ul.songs {
   list-style: none;
