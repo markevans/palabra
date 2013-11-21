@@ -1,22 +1,14 @@
 module LyricsApi
   class << self
 
-    SITES = {
-      search: 'http://search.azlyrics.com',
-      main: 'http://www.azlyrics.com'
-    }
-
     def search(query)
-      html = with_site(:search) do |site|
-        site.get(
-          path: '/search.php',
-          query: {
-            q: query,
-            p: 0, # page
-            w: 'songs' # songs, not albums
-          },
-        ).body
-      end
+      html = Excon.get('http://search.azlyrics.com/search.php',
+        query: {
+          q: query,
+          p: 0, # page
+          w: 'songs' # songs, not albums
+        },
+      ).body
       doc = Nokogiri::HTML(html)
       doc.css('.sen').map do |node|
         song_link = node.css('a:first-child')
@@ -29,10 +21,7 @@ module LyricsApi
     end
 
     def song(url)
-      path = url.sub(SITES[:main], '')
-      html = with_site(:main) do |site|
-        site.get(path: path).body
-      end
+      html = Excon.get(url).body
       doc = Nokogiri::HTML(html)
       lyrics = doc.xpath('//comment()').detect{|e| e.text =~ /start.*lyrics/ }.parent.text.strip
       Song.new(
@@ -43,27 +32,5 @@ module LyricsApi
       )
     end
 
-    private
-
-    def sites
-      @sites ||= {}
-    end
-
-    def site(name)
-      sites[name] ||= Excon.new(SITES[name])
-    end
-
-    def reload_site(name)
-      sites.delete(name)
-    end
-
-    def with_site(name)
-      begin
-        yield site(name)
-      rescue Excon::Errors::SocketError
-        reload_site(name)
-        yield site(name)
-      end
-    end
   end
 end
