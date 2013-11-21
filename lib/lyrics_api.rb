@@ -20,22 +20,27 @@ module LyricsApi
       doc = Nokogiri::HTML(html)
       doc.css('.sen').map do |node|
         song_link = node.css('a:first-child')
-        {
-          song_title: song_link.text,
-          song_url: song_link.attr('href').value,
-          artist: node.css('b').first.text
-        }
+        Song.new(
+          title: song_link.text.titleize,
+          url: song_link.attr('href').value,
+          artist: node.css('b').first.text.titleize
+        )
       end
     end
 
-    def lyrics(url)
+    def song(url)
       path = url.sub(SITES[:main], '')
       html = with_site(:main) do |site|
         site.get(path: path).body
       end
       doc = Nokogiri::HTML(html)
-      text = doc.xpath('//comment()').detect{|e| e.text =~ /start.*lyrics/ }.parent.text
-      text.strip
+      lyrics = doc.xpath('//comment()').detect{|e| e.text =~ /start.*lyrics/ }.parent.text.strip
+      Song.new(
+        title: doc.css('h2').text.sub('LYRICS','').strip.titleize,
+        lyrics: lyrics,
+        url: url,
+        artist: doc.css('h2 ~ b').text.gsub('"','').titleize
+      )
     end
 
     private
