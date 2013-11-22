@@ -1,16 +1,12 @@
-require 'open-uri'
-
 module LyricsApi
   class << self
 
     def search(query)
-      html = open("http://search.azlyrics.com/search.php?" +
-        {
-          q: query,
-          p: 0, # page
-          w: 'songs' # songs, not albums
-        }.to_query
-      ).read
+      html = get("http://search.azlyrics.com/search.php?",
+        q: query,
+        p: 0, # page
+        w: 'songs' # songs, not albums
+      )
       doc = Nokogiri::HTML(html)
       doc.css('.sen').map do |node|
         song_link = node.css('a:first-child')
@@ -23,7 +19,7 @@ module LyricsApi
     end
 
     def song(url)
-      html = open(url).read
+      html = get(url)
       doc = Nokogiri::HTML(html)
       lyrics = doc.xpath('//comment()').detect{|e| e.text =~ /start.*lyrics/ }.parent.text.strip
       Song.new(
@@ -32,6 +28,12 @@ module LyricsApi
         url: url,
         artist: doc.css('h2 ~ b').text.gsub('"','').titleize
       )
+    end
+
+    private
+
+    def get(url, query={})
+      Faraday.get(url, query).body
     end
 
   end
