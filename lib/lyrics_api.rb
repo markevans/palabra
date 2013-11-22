@@ -1,14 +1,16 @@
+require 'open-uri'
+
 module LyricsApi
   class << self
 
     def search(query)
-      html = Excon.get('http://search.azlyrics.com/search.php',
-        query: {
+      html = open("http://search.azlyrics.com/search.php?" +
+        {
           q: query,
           p: 0, # page
           w: 'songs' # songs, not albums
-        },
-      ).body
+        }.to_query
+      ).read
       doc = Nokogiri::HTML(html)
       doc.css('.sen').map do |node|
         song_link = node.css('a:first-child')
@@ -21,7 +23,7 @@ module LyricsApi
     end
 
     def song(url)
-      html = Excon.get(url).body
+      html = open(url).read
       doc = Nokogiri::HTML(html)
       lyrics = doc.xpath('//comment()').detect{|e| e.text =~ /start.*lyrics/ }.parent.text.strip
       Song.new(
