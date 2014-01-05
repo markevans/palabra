@@ -4,6 +4,7 @@ class SearchesController < ApplicationController
 
   def show
     params.require(:query)
-    @songs = LyricsApi.search(params[:query])
+    @query = params[:query]
+    @songs = LyricsApi.search(@query)
   end
 end

@@ -10,7 +10,7 @@
 <body>
 
 <form class="query" method="GET" action="<%= search_url %>">
-  <input name="query" placeholder="Search me!" />
+  <%= text_field_tag "query", @query, placeholder: "Search me!" %>
 </form>
 
 <%= yield %>
