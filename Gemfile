@@ -8,7 +8,6 @@ gem 'jquery-rails'
 gem 'turbolinks'
 gem 'jbuilder', '~> 1.2'
 gem 'nokogiri'
-gem 'faraday'
 
 group :development do
   gem 'sqlite3'

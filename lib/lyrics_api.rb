@@ -1,8 +1,10 @@
+require 'open-uri'
+
 module LyricsApi
   class << self
 
     def search(query)
-      html = get("http://search.azlyrics.com/search.php?",
+      html = get("http://search.azlyrics.com/search.php",
         q: query,
         p: 0, # page
         w: 'songs' # songs, not albums
@@ -33,7 +35,8 @@ module LyricsApi
     private
 
     def get(url, query={})
-      Faraday.get(url, query).body
+      full_url = [url, query.to_query].join("?")
+      open(full_url).read
     end
 
   end
